@@ -4,8 +4,7 @@ import requests
 import json
 
 # ── Config ────────────────────────────────────────────────────────────────────
-API_BASE = "http://localhost:8000/api/v1"
-
+API_BASE = "https://coachmemory-production.up.railway.app/api/v1"
 st.set_page_config(
     page_title="Vani.coach",
     page_icon="🎙️",
