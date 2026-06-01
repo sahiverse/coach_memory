@@ -1,16 +1,35 @@
 # main.py
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from database.sql_db import create_all_tables
+from database.sql_db import create_all_tables, SessionLocal
+from models.sql_models import User
 from api.routes import router
+
+
+def seed_if_empty():
+    """Seed the database if it's empty — safe to run on every startup."""
+    db = SessionLocal()
+    try:
+        count = db.query(User).count()
+        if count == 0:
+            print("🌱 Empty database detected. Seeding initial data...")
+            import seed_data  # runs the seed script as a module
+            print("✅ Seed complete.")
+        else:
+            print(f"✅ Database already has {count} users. Skipping seed.")
+    except Exception as e:
+        print(f"⚠️ Seed check failed: {e}")
+    finally:
+        db.close()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: create all SQL tables if they don't exist
     create_all_tables()
     print("✅ Database tables ready.")
+    seed_if_empty()
     yield
-    # Shutdown: nothing to clean up for now
+
 
 app = FastAPI(
     title="Vani.coach API",
@@ -20,6 +39,7 @@ app = FastAPI(
 )
 
 app.include_router(router, prefix="/api/v1")
+
 
 @app.get("/health")
 def health_check():
