@@ -52,7 +52,8 @@ def manual_seed():
         return {"status": "seeded"}
     db.close()
     return {"status": "already seeded", "users": count}
-    
+
+
 @app.get("/health")
 def health_check():
     return {"status": "ok", "message": "Vani.coach API is running"}
