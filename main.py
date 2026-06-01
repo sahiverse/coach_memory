@@ -13,7 +13,8 @@ def seed_if_empty():
         count = db.query(User).count()
         if count == 0:
             print("🌱 Empty database detected. Seeding initial data...")
-            import seed_data  # runs the seed script as a module
+            from seed_data import seed
+            seed()
             print("✅ Seed complete.")
         else:
             print(f"✅ Database already has {count} users. Skipping seed.")
@@ -49,8 +50,11 @@ def manual_seed():
     try:
         count = db.query(User).count()
         if count == 0:
-            import seed_data
-            count_after = db.query(User).count()
+            from seed_data import seed
+            seed()
+            db2 = SessionLocal()
+            count_after = db2.query(User).count()
+            db2.close()
             return {"status": "seeded", "users_after": count_after}
         return {"status": "already seeded", "users": count}
     except Exception as e:
