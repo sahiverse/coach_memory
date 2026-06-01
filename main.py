@@ -40,7 +40,19 @@ app = FastAPI(
 
 app.include_router(router, prefix="/api/v1")
 
-
+@app.post("/admin/seed")
+def manual_seed():
+    from database.sql_db import SessionLocal
+    from models.sql_models import User
+    db = SessionLocal()
+    count = db.query(User).count()
+    if count == 0:
+        import seed_data
+        db.close()
+        return {"status": "seeded"}
+    db.close()
+    return {"status": "already seeded", "users": count}
+    
 @app.get("/health")
 def health_check():
     return {"status": "ok", "message": "Vani.coach API is running"}
