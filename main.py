@@ -44,14 +44,19 @@ app.include_router(router, prefix="/api/v1")
 def manual_seed():
     from database.sql_db import SessionLocal
     from models.sql_models import User
+    import traceback
     db = SessionLocal()
-    count = db.query(User).count()
-    if count == 0:
-        import seed_data
+    try:
+        count = db.query(User).count()
+        if count == 0:
+            import seed_data
+            count_after = db.query(User).count()
+            return {"status": "seeded", "users_after": count_after}
+        return {"status": "already seeded", "users": count}
+    except Exception as e:
+        return {"status": "error", "detail": str(e), "trace": traceback.format_exc()}
+    finally:
         db.close()
-        return {"status": "seeded"}
-    db.close()
-    return {"status": "already seeded", "users": count}
 
 
 @app.get("/health")
